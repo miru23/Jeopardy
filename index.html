@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeopardy!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- SCREEN 1: Setup -->
+  <section id="screen-setup" class="screen active">
+    <div class="setup-container">
+      <h1 class="jeopardy-title">JEOPARDY!</h1>
+
+      <div class="setup-section">
+        <h2>Teams</h2>
+        <div id="team-inputs"></div>
+        <div class="team-controls">
+          <button id="btn-add-team" class="btn-secondary">+ Add Team</button>
+          <button id="btn-remove-team" class="btn-secondary" disabled>− Remove Team</button>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <h2>Question File</h2>
+        <label class="file-label" for="question-file">
+          <div class="file-icon">📄</div>
+          <span id="file-label-text">Choose XLSX or CSV file…</span>
+          <input type="file" id="question-file" accept=".xlsx,.xls,.csv">
+        </label>
+        <p id="file-status"></p>
+      </div>
+
+      <button id="btn-start" class="btn-primary" disabled>Start Game</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: Game Board -->
+  <section id="screen-board" class="screen">
+    <header id="scoreboard"></header>
+    <div id="turn-status" class="turn-status">Select a team to pick a question</div>
+    <main id="board-grid"></main>
+    <footer class="board-footer">
+      <button id="btn-end-game" class="btn-danger">End Game</button>
+    </footer>
+  </section>
+
+  <!-- Modal Overlay (sits above board) -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <div id="modal-header">
+        <span id="modal-category"></span>
+        <span id="modal-points"></span>
+      </div>
+
+      <!-- Daily Double banner + wager (shown before clue for DD cells) -->
+      <div id="modal-dd-banner" class="hidden">DAILY DOUBLE!</div>
+      <div id="modal-wager-area" class="hidden">
+        <label for="dd-wager-input">Enter your wager: $<input type="number" id="dd-wager-input" min="0" placeholder="0"></label>
+        <button id="btn-dd-confirm" class="btn-primary">Reveal Clue</button>
+      </div>
+
+      <!-- Clue text -->
+      <div id="modal-clue"></div>
+
+      <!-- Reveal Answer button (hidden after clicked) -->
+      <button id="btn-reveal" class="btn-primary hidden">Reveal Answer</button>
+
+      <!-- Answer text (shown after reveal) -->
+      <div id="modal-answer" class="hidden"></div>
+
+      <!-- Timer -->
+      <div id="timer-area">
+        <button id="btn-start-timer" class="btn-timer">▶ Start Timer</button>
+        <div id="timer-display" class="hidden">
+          <span id="timer-count">15</span>
+          <div id="timer-bar-track"><div id="timer-bar-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Active team: the team whose turn it was to pick -->
+      <div id="modal-active-team" class="hidden"></div>
+
+      <!-- Other teams: shown one-by-one after active team answers wrong -->
+      <div id="modal-other-teams" class="hidden"></div>
+
+      <!-- Nobody got it — close modal, no score change -->
+      <button id="btn-nobody" class="btn-secondary">Nobody Got It</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: End Game -->
+  <section id="screen-endgame" class="screen">
+    <div class="endgame-container">
+      <h1 class="jeopardy-title">Final Scores</h1>
+      <div id="final-scores"></div>
+      <button id="btn-play-again" class="btn-primary">Play Again</button>
+    </div>
+  </section>
+
+  <!-- SheetJS for XLSX + CSV parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
