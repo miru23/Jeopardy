@@ -345,6 +345,8 @@ function startGame() {
 
   if (G.teams.length < MIN_TEAMS) return;
 
+  G.activeTeamIdx = 0;
+
   switchScreen('screen-setup', 'screen-board');
   renderBoard();
   renderScoreboard();
@@ -520,7 +522,7 @@ function revealAnswer() {
 }
 
 function handleNobody() {
-  G.activeTeamIdx = -1;
+  G.activeTeamIdx = (G.activeTeamIdx + 1) % G.teams.length;
   closeModal();
 }
 
@@ -567,26 +569,43 @@ function renderActiveTeamPanel(pts) {
   panel.appendChild(btns);
 }
 
-// Determine next team in fixed order (0→N), skipping the active team and already-wrong teams.
-// If all other teams have answered wrong, auto-trigger Nobody Got It.
+// Show team selector buttons so the host picks who answers next.
+// Teams that already answered wrong are disabled. If none remain, auto Nobody Got It.
 function renderOtherTeamsPanel(pts, excludeIdx, wrongIdxs) {
   wrongIdxs = wrongIdxs || [];
 
-  let nextIdx = -1;
-  for (let i = 0; i < G.teams.length; i++) {
-    if (i !== excludeIdx && !wrongIdxs.includes(i)) {
-      nextIdx = i;
-      break;
-    }
-  }
-
-  if (nextIdx === -1) {
-    // Everyone answered wrong — auto Nobody Got It
+  // Check if any eligible teams remain
+  const hasEligible = G.teams.some((_, i) => i !== excludeIdx && !wrongIdxs.includes(i));
+  if (!hasEligible) {
     handleNobody();
     return;
   }
 
-  showOtherTeamAnswerPhase(pts, excludeIdx, nextIdx, wrongIdxs);
+  const panel = document.getElementById('modal-other-teams');
+  panel.classList.remove('hidden');
+  panel.innerHTML = '';
+
+  const heading = document.createElement('div');
+  heading.className = 'other-teams-heading';
+  heading.textContent = "Who's answering next?";
+  panel.appendChild(heading);
+
+  const selector = document.createElement('div');
+  selector.className = 'other-teams-selector';
+
+  G.teams.forEach((team, i) => {
+    if (i === excludeIdx) return;
+    const btn = document.createElement('button');
+    btn.className = 'btn-team-select';
+    if (wrongIdxs.includes(i)) btn.disabled = true;
+    btn.textContent = team.name;
+    btn.addEventListener('click', () => {
+      showOtherTeamAnswerPhase(pts, excludeIdx, i, wrongIdxs);
+    });
+    selector.appendChild(btn);
+  });
+
+  panel.appendChild(selector);
 }
 
 // Show the next team on the clock — auto-start 10s timer, show ✓/✗
@@ -646,6 +665,7 @@ function closeModal() {
   G.cells[key].el.classList.add('used');
   G.activeCell = null;
 
+  renderScoreboard();
   renderTurnStatus();
   checkAllUsed();
 }
