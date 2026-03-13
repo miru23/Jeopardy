@@ -155,7 +155,7 @@ document.getElementById('scoreboard').addEventListener('click', e => {
 document.getElementById('btn-reveal').addEventListener('click', revealAnswer);
 document.getElementById('btn-nobody').addEventListener('click', handleNobody);
 document.getElementById('btn-dd-confirm').addEventListener('click', confirmWager);
-document.getElementById('btn-start-timer').addEventListener('click', startTimer);
+document.getElementById('btn-start-timer').addEventListener('click', () => startTimer());
 
 /* ===================================================
    END GAME SCREEN
@@ -675,7 +675,7 @@ function closeModal() {
    =================================================== */
 
 function startTimer(duration) {
-  duration = duration || 15;
+  if (typeof duration !== 'number' || duration <= 0) duration = 15;
   stopTimer();
   G.timerSeconds = duration;
   G.timerMax = duration;
